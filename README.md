@@ -36,8 +36,26 @@ analytical complexity.
 - **Grain:** one row per registered electric vehicle
 - **Key:** `dol_vehicle_id` (unique per row)
 
-Column-level classification (nature, structure, nulls, cardinality) is
-documented in [`docs/catalogo_dados.md`](docs/catalogo_dados.md).
+Column-level classification (nature, structure, nulls, cardinality);
+| Column | Declaration | Semantic | Evidence  | Percentual de nulos | Cardinalidade | Observation |
+| --- | --- | --- | --- | --- | --- | --- |
+| VIN(1-10) | text |  |  |  |  |  |
+| county | text | **qualitativo nominal** | 300142 linhas; 15 nulos (0,005%); 254 distintos; nomes geograficos; cardinalidade media-baixa | 0.005 |  | 15 nulos (0,005%): praticamente completa; tratar com COALESCE(condado,'desconhecido') em agrupamentos; possivel falha na fonte. |
+| city | text | **qualitativo nominal (identificador)** | 300142 linhas; 15 nulos (0.005%); 935 distintos; nomes geográficos; cardinalidade média (mais granular que condado); | 0.005 | 934 |  |
+| state1 | text | qualitativo nominal | 300142 linhas; 0 nulos (0%); 51 distintos; nomes geográficos; cardinalidade baixa; | 0.000 | 51 | baixa cardinalidade,  verificar se são 51 cidades reais ou se há variações de grafia (ex.: "São Paulo" vs "Sao Paulo") |
+| postal code | text | qualitativo  | 300142 linhas; 15 nulos (0,005%); 1198 distintos; código postal; alta cardinalidade em relação às demais colunas geográficas; não é único por linha | 0.005 | 1198 | Verificar nulos; |
+| model year | text | quantitativo  | 300142 linhas; 0 nulos (0%); 23 distintos; ano do modelo; valores numéricos ordenáveis; uso em comparação, ordenação e agregação | 0.0000 | 23 |  (0 nulos); 23 distintos indica faixa curta de anos (ex.: 2000–2022); pode ser tratado como categórico ordinal em agrupamentos; verificar se há valores fora de faixa (ex.: 0, 9999, ano futuro) |
+| make | text | qualitativo nominal | 300142 linhas; 0 nulos (0%); 51 distintos; fabricante; uso em comparação, ordenação; | 0.000 | 51 | verificar variações de grafia e padronizar se necessário |
+| model | text | qualitativo nominal | 300142 linhas; 0 nulos (0%); 205 distintos; (código/nome de modelo); uso em GROUP BY e filtros, não em SUM/AV | 0.000 | 205 | verificar variações de grafia e padronizar se necessário |
+| eletric vehicle type  | text | qualitativo nominal | 300142 linhas; 0 nulos (0%); 2 distintos; categoria de tipo de veículo elétrico; uso em GROUP BY e filtros | 0.000 | 2 | apenas 2 categorias (ex.: BEV/PHEV); cardinalidade mínima; |
+| clean alternative fuel vehicle eligibility | text | qualitativo | 300142 linhas; 0 nulos (0%); 3 distintos; | 0.000 | 3 | verificar os 3 valores exatos e se há categoria "desconhecido/não elegível” |
+| eletric range | text | quantitativo | 300142 linhas; ~36 nulos (0,012%); 117 distintos; autonomia elétrica em milhas; uso em AVG/MIN/MAX e comparações | 0.012 | 117 | Levemente esparsa (0,012%); valor 0 pode indicar ausência de informação (verificar); analisar por tipo de veículo; 117 distintos sugere valores arredondados/agrupados
+ |
+| legislative district | text | qualitativo | 300142 linhas; ~789 nulos (0,263%); 49 distintos; número do distrito legislativo; uso em GROUP BY e filtros, não em SUM/AVG | 0.263 | 49 | Levemente esparsa (0,263%); apesar de numérico, é código de distrito — não somar nem tirar média; cardinalidade baixa (49 distritos); tratar nulos com COALESCE ou excluir conforme a análise |
+| dol vehicle ID | text | identificador único | 300142 linhas; 0 nulos (0%); cardinalidade = 300142 (igual ao número de linhas); identificador do veículo; único por registro | 0.000 | 300142 | Completa (0 nulos); **identificador único** — chave natural/candidata da tabela; não usar em GROUP BY nem em agregações; candidata a PRIMARY KEY ou UNIQUE; ideal para joins e deduplicação |
+| vehicle location | text | semiestruturado | 300142 linhas; ~24 nulos (0,008%); 1197 distintos; formato `POINT(x y)` com par de coordenadas embutido; não é escalar, exige parser (ST_X/ST_Y) | 0.008 | 1197 | Levemente esparsa (0,008%); **contém dois quantitativos contínuos (longitude, latitude)** — extrair com `ST_X`/`ST_Y` antes de medir; usar PostGIS para distância/região; não usar AVG direto na coluna |
+| eletric utility | text | qualitativo nominal multivalorado | 300142 linhas; ~15 nulos (0,005%); 76 distintos; texto com nome da concessionária + cidade/estado no mesmo campo (ex.: "City of Seattle - WA", "City of Tacoma - (WA)"); formato inconsistente exige parser | 0.005 | 76 | Levemente esparsa (0,005%); **multivalorado** — contém concessionária + cidade + estado; separar com `split_part`/regex antes de agrupar; padronizar grafia (WA vs (WA)) e considerar extrair colunas derivadas; tratar nulos com COALESCE se agrupar |
+| 2020geoID | text | qualitativo nominal | 300142 linhas; ~15 nulos (0,005%); 2468 distintos; código do setor censitário (2020); numérico por fora, mas é código geográfico; uso em GROUP BY/joins, não em SUM/AV | 0.005 | 2468 | Levemente esparsa (0,005%); **não somar nem tirar média** — é código, não quantidade; não é único (2468 distintos para 300k linhas ≈ 122 por tract); bom para joins com dados do censo; cuidado com zeros à esquerda se for `text` |
 
 ## Scope
 
