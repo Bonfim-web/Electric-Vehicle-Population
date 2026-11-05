@@ -111,15 +111,6 @@ Each question is documented with its SQL in
 
 ## Approach Used
 
-### Data preparation
-- Imported the CSV as `text` to preserve leading zeros in codes
-  (postal_code, census_tract).
-- Profiled every column: row count, nulls, % nulls, cardinality, sample.
-- Classified columns semantically (qualitative nominal, quantitative
-  discrete/continuous, identifier, semi-structured).
-- Converted only columns used in analysis (`electric_range::numeric`,
-  `model_year::int`).
-
 ### SQL techniques
 - Aggregation: `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, `GROUP BY`, `HAVING`
 - Filtering and ordering: `WHERE`, `ORDER BY`, `LIMIT`
