@@ -115,6 +115,15 @@ Each question is documented with its SQL in
 - Git for versioning queries and documentation
 
 ## Key Findings
+- **Ranking ties (Q9):** ties are pervasive at the county level — 212 of 254
+  counties (83.5%) show divergence between `RANK` and `DENSE_RANK`. `RANK`
+  skips positions after ties (e.g., 1,2,2,4), while `DENSE_RANK` does not
+  (1,2,2,3). This reflects a long-tail distribution: many counties share the
+  same low vehicle counts, making ties the norm rather than the exception.
+- **Manufacturer concentration (Q3):** the market is highly concentrated —
+  Tesla alone holds 40.74% of the fleet (122,291 vehicles), and the top 3
+  makes (Tesla, Chevrolet, Ford) account for 52.81%. The remaining ~49 makes
+  share the other ~47%, reflecting a long-tail distribution.
 - **Geographic concentration:** the top 10 counties hold ~90.55% of the fleet —
   EV adoption is highly concentrated, not spread evenly.
 - **Range by type (zeros excluded):** BEVs average 200.37 miles vs 32.28 for
