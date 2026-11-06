@@ -124,20 +124,19 @@ Each question is documented with its SQL in
 - Git for versioning queries and documentation
 
 ## Key Findings
-- **Fleet composition:** [80.58]% of records are BEVs and [19.42]% PHEVs; the fleet is
-  dominated by Battery Electric Vehicle (BEV), not evenly split.
-- **Growth:** registrations grew from [X] in [year₁] to [Y] in [year₂]
-  (~[Z]× increase), with acceleration after [year].
-- **Geographic concentration:** the top 10 counties hold ~[N]% of the fleet —
+- **Geographic concentration:** the top 10 counties hold ~[90.55]% of the fleet —
   EV adoption is highly concentrated, not spread evenly.
-- **Range by type:** BEVs average [X] miles vs [Y] for PHEVs; the median is
-  lower than the mean for both, indicating right-skewed distributions.
-- **Data quality:** 81.49% of BEV records report `electric_range = 0` (missing,
-  not real autonomy); these were excluded from range statistics to avoid
-  distorting the mean and stddev.
-- **Ties in ranking:** ties are frequent at the county level — `RANK` skips
-  positions after a tie while `DENSE_RANK` does not; the divergence appears in
-  [N] counties, confirming the practical difference.
+- **Range by type (zeros excluded):** BEVs average 200.37 miles vs 32.28 for
+  PHEVs. For BEVs, the median (215) is higher than the mean (200.37),
+  indicating a left-skewed distribution; for PHEVs, median (32) and mean
+  (32.28) are nearly equal, indicating a symmetric distribution.
+- **Data quality (Q8):** 81.49% of BEVs (197,085 of 241,840) report
+ `electric_range = 0`, which represents missing information rather than real
+ autonomy; no PHEV has zero. These zeros were excluded from the range
+ statistics (`WHERE electric_range > 0`). With zeros excluded, the BEV median
+ rises from 0 to ~215 miles, and the standard deviation drops from 83 to ~71.90.
+ PHEV statistics are unchanged (median 32, stddev 13), since PHEVs have no
+ zeros. The 36 nulls (all PHEV) were also excluded by the aggregates.
 
 ## Limitations
 
