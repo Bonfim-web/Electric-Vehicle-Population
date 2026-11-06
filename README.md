@@ -7,9 +7,9 @@ how EV adoption is distributed across vehicle makes, electric vehicle types,
 model years, and geography (city/county) in Washington State. The goal is to practice end-to-end analytical SQL — from data profiling to window
 functions and descriptive statistics.
 
-The dataset is published by Data.gov (USA) and contains Battery Electric
-Vehicles (BEVs) and Plug-in Hybrid Electric Vehicles (PHEVs) currently
-registered through the Washington State Department of Licensing (DOL).
+The analysis answers ten business questions organized by increasing
+analytical complexity, and documents every decision (data quality issues,
+null handling, distribution shape) alongside the SQL.
 
 ## Objective
 
@@ -17,9 +17,6 @@ registered through the Washington State Department of Licensing (DOL).
 - Aggregations, conditional logic, subqueries and CTEs
 - Window functions (ranking, top-N per group, share of total)
 - Descriptive statistics (median, standard deviation, variance)
-
-The analysis answers ten business questions organized by increasing
-analytical complexity.
 
 ## About the Data
 
@@ -30,12 +27,11 @@ analytical complexity.
   (e.g., postal codes and census tracts)
 - **Data origin:** secondary (public dataset)
 - **Grain:** one row per registered electric vehicle
-- **Key:** `dol_vehicle_id` (unique per row)
+- **Key:**  `dol_vehicle_id` (unique per row)
 
-Column-level classification (nature, structure, nulls, cardinality);
 ## Data Catalog
 
-Column-level classification for `ev_population_import` (300,142 rows, 16 columns).
+Column-level classification for  `ev_population_import` (300,142 rows, 16 columns).
 Classification follows four axes: **nature** (qualitative / quantitative /
 identifier), **structure** (structured / semi-structured), **origin**
 (primary / secondary / tertiary), and **sparsity** (null ratio).
@@ -75,10 +71,10 @@ The questions are organized in order of increasing complexity.
   *(COUNT, GROUP BY, ORDER BY)*
   
 - Q3. Which vehicle makes have the most registered vehicles?
-  *(GROUP BY,COUNT(*), window SUM() OVER(),ORDER BY DESC,ROUND, LIMIT)*
+  *(GROUP BY, COUNT(*), window SUM() OVER(), ORDER BY DESC, ROUND, LIMIT)*
   
 - Q4. Which cities and counties concentrate the largest EV fleet?
-  *(GROUP BY, COUNT, SUM() OVER(),ORDER BY, LIMIT)*
+  *(GROUP BY, COUNT, SUM() OVER(), ORDER BY, LIMIT)*
   
 - Q5. Which electric vehicle type has the highest average electric range?
   *(AVG, type casting, GROUP BY)*
@@ -107,7 +103,7 @@ Each question is documented with its SQL in
 ## Approach Used
 
 ### SQL techniques
-- Aggregation: `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, `GROUP BY`,
+- Aggregation: `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, `GROUP BY`
 - Filtering and ordering: `WHERE`, `ORDER BY`, `LIMIT`
 - Conditional logic: `CASE WHEN`
 - Subqueries and CTEs: scalar subquery for averages, `WITH` for reusable steps
@@ -124,14 +120,14 @@ Each question is documented with its SQL in
 - Git for versioning queries and documentation
 
 ## Key Findings
-- **Geographic concentration:** the top 10 counties hold ~[90.55]% of the fleet —
+- **Geographic concentration:** the top 10 counties hold ~90.55% of the fleet —
   EV adoption is highly concentrated, not spread evenly.
 - **Range by type (zeros excluded):** BEVs average 200.37 miles vs 32.28 for
   PHEVs. For BEVs, the median (215) is higher than the mean (200.37),
   indicating a left-skewed distribution; for PHEVs, median (32) and mean
   (32.28) are nearly equal, indicating a symmetric distribution.
 - **Data quality (Q8):** 81.49% of BEVs (197,085 of 241,840) report
- `electric_range = 0`, which represents missing information rather than real
+  `electric_range = 0`, which represents missing information rather than real
  autonomy; no PHEV has zero. These zeros were excluded from the range
  statistics (`WHERE electric_range > 0`). With zeros excluded, the BEV median
  rises from 0 to ~215 miles, and the standard deviation drops from 83 to ~71.90.
