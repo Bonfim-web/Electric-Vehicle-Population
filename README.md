@@ -101,8 +101,8 @@ The questions are organized in order of increasing complexity.
   *(CTE, ROW_NUMBER() OVER(PARTITION BY make) + rank filter)*
 
 Each question is documented with its SQL in
-[`sql/03_analises.sql`](sql/03_analises.sql) and its result in
-[`resultados/`](resultados/).
+[`sql/03_analises.sql`](SQL file.sql).
+
 
 ## Approach Used
 
