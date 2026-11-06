@@ -4,9 +4,7 @@
 
 This project explores the Electric Vehicle Population dataset to understand
 how EV adoption is distributed across vehicle makes, electric vehicle types,
-model years, and geography (city/county) in Washington State. The goal is to
-map customer preference and regional concentration of electric vehicles, and
-to practice end-to-end analytical SQL — from data profiling to window
+model years, and geography (city/county) in Washington State. The goal is to practice end-to-end analytical SQL — from data profiling to window
 functions and descriptive statistics.
 
 The dataset is published by Data.gov (USA) and contains Battery Electric
@@ -15,7 +13,6 @@ registered through the Washington State Department of Licensing (DOL).
 
 ## Objective
 
-This is a study project built to practice:
 - Data profiling and semantic classification of columns
 - Aggregations, conditional logic, subqueries and CTEs
 - Window functions (ranking, top-N per group, share of total)
@@ -63,47 +60,45 @@ identifier), **structure** (structured / semi-structured), **origin**
 | 2020geoID | text | Identifier (geographic code) | 300,142 rows; ~15 nulls (0.005%); 2,468 distinct; 2020 census tract ID; numeric-looking code, not a quantity | 0.005 | 2,468 | Slightly sparse (0.005%); do not sum or average — it is a code; not unique (~122 rows per tract); good for joins with census data; keep as text to preserve leading zeros |
 
 ## Scope
-
 **In scope:** descriptive analysis of fleet composition, geography,
 range, and eligibility; rankings and comparisons across groups.
 
-**Out of scope:** predictive modeling, statistical inference, and formal
-spatial analysis (the `vehicle_location` POINT column was not extracted
-for geo computations).
-
 ## Business Questions
 
-The questions are organized in four levels of increasing complexity.
+The questions are organized in order of increasing complexity.
 
-### Level 1 — Basic exploration
+### 
 - Q1. How many vehicles are in the dataset, and what is the distribution
   by electric vehicle type? *(COUNT, GROUP BY, SUM() OVER())*
+  
 - Q2. How has the EV fleet evolved across model years?
-  *(GROUP BY, ORDER BY)*
+  *(COUNT, GROUP BY, ORDER BY)*
+  
 - Q3. Which vehicle makes have the most registered vehicles?
-  *(GROUP BY, ORDER BY DESC, LIMIT)*
-
-### Level 2 — Aggregations and comparisons
+  *(GROUP BY,COUNT(*), window SUM() OVER(),ORDER BY DESC,ROUND, LIMIT)*
+  
 - Q4. Which cities and counties concentrate the largest EV fleet?
-  *(GROUP BY, COUNT, ORDER BY)*
+  *(GROUP BY, COUNT, SUM() OVER(),ORDER BY, LIMIT)*
+  
 - Q5. Which electric vehicle type has the highest average electric range?
   *(AVG, type casting, GROUP BY)*
+  
 - Q6. Which makes are above or below the average number of vehicles per
   make? *(CTE + CASE WHEN + scalar subquery)*
-
-### Level 3 — Analytical queries
+  
 - Q7. Which counties have more registered vehicles than the average per
-  county? *(subquery / CTE)*
-
-### Level 4 — Statistics and window functions
+  county? *(subquery / CTE + WHERE)*
+  
 - Q8. What is the median electric range, and how do standard deviation and
   variance vary by electric vehicle type?
-  *(PERCENTILE_CONT, STDDEV, VARIANCE)*
+  *(PERCENTILE_CONT, STDDEV, VARIANCE, WHERE, GROUP BY)*
+  
 - Q9. How do counties rank by fleet size, and what is the practical
   difference between RANK() and DENSE_RANK() on ties?
-  *(RANK, DENSE_RANK, ROW_NUMBER)*
+  *(CTE, RANK, DENSE_RANK, OVER(ORDER BY)*
+  
 - Q10. What are the top 3 most popular models for each vehicle make?
-  *(ROW_NUMBER() OVER(PARTITION BY make) + rank filter)*
+  *(CTE, ROW_NUMBER() OVER(PARTITION BY make) + rank filter)*
 
 Each question is documented with its SQL in
 [`sql/03_analises.sql`](sql/03_analises.sql) and its result in
@@ -112,7 +107,7 @@ Each question is documented with its SQL in
 ## Approach Used
 
 ### SQL techniques
-- Aggregation: `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, `GROUP BY`, `HAVING`
+- Aggregation: `COUNT`, `SUM`, `AVG`, `MIN`, `MAX`, `GROUP BY`,
 - Filtering and ordering: `WHERE`, `ORDER BY`, `LIMIT`
 - Conditional logic: `CASE WHEN`
 - Subqueries and CTEs: scalar subquery for averages, `WITH` for reusable steps
@@ -129,9 +124,20 @@ Each question is documented with its SQL in
 - Git for versioning queries and documentation
 
 ## Key Findings
-
-> To be filled as the queries are completed. One bullet per answered
-> question, with the query reference and a one-line interpretation.
+- **Fleet composition:** [80.58]% of records are BEVs and [19.42]% PHEVs; the fleet is
+  dominated by Battery Electric Vehicle (BEV), not evenly split.
+- **Growth:** registrations grew from [X] in [year₁] to [Y] in [year₂]
+  (~[Z]× increase), with acceleration after [year].
+- **Geographic concentration:** the top 10 counties hold ~[N]% of the fleet —
+  EV adoption is highly concentrated, not spread evenly.
+- **Range by type:** BEVs average [X] miles vs [Y] for PHEVs; the median is
+  lower than the mean for both, indicating right-skewed distributions.
+- **Data quality:** 81.49% of BEV records report `electric_range = 0` (missing,
+  not real autonomy); these were excluded from range statistics to avoid
+  distorting the mean and stddev.
+- **Ties in ranking:** ties are frequent at the county level — `RANK` skips
+  positions after a tie while `DENSE_RANK` does not; the divergence appears in
+  [N] counties, confirming the practical difference.
 
 ## Limitations
 
