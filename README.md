@@ -18,6 +18,12 @@ null handling, distribution shape) alongside the SQL.
 - Window functions (ranking, top-N per group, share of total)
 - Descriptive statistics (median, standard deviation, variance)
 
+  ## Project Stage
+
+  This is an **exploratory data analysis (EDA)** project — descriptive and
+  diagnostic. It answers "what" and "how groups differ", not "what will happen".
+  Predictive modeling, formal statistical inference, and dashboards are out of scope.
+
 ## About the Data
 
 - **Source:** Data.gov — Electric Vehicle Population (Washington State DOL)
