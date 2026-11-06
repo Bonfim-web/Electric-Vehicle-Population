@@ -146,3 +146,5 @@ Each question is documented with its SQL in
   extracted for formal spatial analysis.
 - Statistics are descriptive only (no hypothesis testing or inference).
 - Vehicle registration data may lag behind actual sales/adoption.
+- `electric_range = 0` is treated as missing information, not real autonomy
+  (81.49% of BEVs); 
